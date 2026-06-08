@@ -2,7 +2,7 @@
 
 Halo! Selamat datang di proyek kode **Drivora**. Proyek ini adalah sistem penyewaan mobil yang sangat keren karena menggabungkan **dua aplikasi berbeda** yang saling terhubung satu sama lain melalui satu *database* (penyimpanan data) yang sama.
 
-Dokumentasi ini ditulis dengan bahasa yang sangat sederhana agar siapa pun yang baru belajar koding bisa memahami cara kerja sistem ini! 😊
+Dokumentasi ini ditulis dengan bahasa yang sangat sederhana agar siapa pun yang baru belajar koding bisa memahami cara kerja sistem ini! 
 
 ---
 
@@ -38,7 +38,7 @@ Kunci utamanya ada pada **Database MySQL**. Bayangkan *database* ini seperti seb
 3. Saat Admin menekan tombol *"Konfirmasi"*, aplikasi Java akan mencoret tulisan `"pending"` di buku catatan tersebut dan mengubahnya menjadi `"active"`.
 4. Pelanggan yang sedang melihat Website akan langsung menyadari perubahan status tersebut menjadi *"Disetujui"*.
 
-Begitulah cara mereka berkomunikasi, padahal bahasanya berbeda (yang satu PHP, yang satu Java)! Ajaib, bukan? ✨
+Begitulah cara mereka berkomunikasi, padahal bahasanya berbeda (yang satu PHP, yang satu Java)! Ajaib, bukan? 
 
 ---
 
