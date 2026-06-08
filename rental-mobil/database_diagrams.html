@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERD, LRS & Kamus Data - Drivora Rental System</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Mermaid.js for Diagram Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            fontFamily: 'Inter, sans-serif',
+            themeVariables: {
+                fontSize: '16px', // Membuat teks di dalam diagram lebih mudah dibaca
+                fontFamily: 'Inter, sans-serif'
+            }
+        });
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans p-8 antialiased">
+
+    <div class="max-w-6xl mx-auto space-y-12">
+        
+        <!-- Header -->
+        <header class="text-center space-y-4">
+            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Skema Database Drivora</h1>
+            <p class="text-lg text-slate-500">ERD, Logical Record Structure (LRS), & Penjelasan Detail Entitas</p>
+        </header>
+
+        <!-- ERD Section -->
+        <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-teal-600 mb-6 border-b border-slate-100 pb-4">1. Entity Relationship Diagram (ERD)</h2>
+            <p class="text-sm text-slate-600 mb-6">
+                Diagram ini menunjukkan entitas utama dalam sistem dan bagaimana mereka saling berhubungan secara konseptual.
+            </p>
+            <div class="flex justify-center bg-slate-50 p-6 rounded-xl border border-slate-100 w-full overflow-hidden">
+                <div class="mermaid w-full flex justify-center">
+                    erDiagram
+                        USERS ||--o{ RENTALS : "membuat pesanan"
+
+                        CARS ||--o{ RENTALS : "dipesan dalam"
+                        RENTALS ||--o| PENALTIES : "mungkin dikenakan"
+
+                        USERS {
+                            bigint id PK
+                            string name
+                            string email
+                            string password
+                            string phone
+                            string nik
+                            text address
+                            string ktp_photo
+                            enum role
+                        }
+
+                        CARS {
+                            bigint id PK
+                            string brand
+                            string size
+                            string transmission
+                            string plate_number
+                            decimal price_per_hour
+                            enum status
+                            string image
+                        }
+
+                        RENTALS {
+                            bigint id PK
+                            bigint user_id FK
+                            bigint car_id FK
+                            datetime start_date
+                            datetime end_date
+                            decimal total_price
+                            enum status
+                        }
+
+                        PENALTIES {
+                            bigint id PK
+                            bigint rental_id FK
+                            decimal amount
+                            string reason
+                            enum status
+                        }
+
+
+                </div>
+            </div>
+        </section>
+
+        <!-- LRS Section -->
+        <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-teal-600 mb-6 border-b border-slate-100 pb-4">2. Logical Record Structure (LRS)</h2>
+            <p class="text-sm text-slate-600 mb-6">
+                LRS merepresentasikan struktur tabel fisik pada database relasional (MySQL). Panah menunjukkan relasi dari Foreign Key (FK) ke Primary Key (PK).
+            </p>
+            <div class="flex justify-center bg-slate-50 p-6 rounded-xl border border-slate-100 w-full overflow-hidden">
+                <div class="mermaid w-full flex justify-center">
+                    classDiagram
+                        direction LR
+                        
+                        class users {
+                            +id : unsignedBigInteger (PK)
+                            name : varchar
+                            email : varchar
+                            password : varchar
+                            phone : varchar
+                            nik : varchar
+                            address : text
+                            ktp_photo : varchar
+                            role : enum('admin', 'customer')
+                            created_at : timestamp
+                            updated_at : timestamp
+                        }
+                        
+                        class cars {
+                            +id : unsignedBigInteger (PK)
+                            brand : varchar
+                            size : varchar
+                            transmission : varchar
+                            plate_number : varchar
+                            price_per_hour : decimal(10,2)
+                            status : enum('available', 'rented', 'maintenance')
+                            image : varchar
+                            created_at : timestamp
+                            updated_at : timestamp
+                        }
+                        
+                        class rentals {
+                            +id : unsignedBigInteger (PK)
+                            #user_id : unsignedBigInteger (FK)
+                            #car_id : unsignedBigInteger (FK)
+                            start_date : datetime
+                            end_date : datetime
+                            total_price : decimal(10,2)
+                            status : enum('pending', 'active', 'completed', 'cancelled')
+                            created_at : timestamp
+                            updated_at : timestamp
+                        }
+                        
+                        class penalties {
+                            +id : unsignedBigInteger (PK)
+                            #rental_id : unsignedBigInteger (FK)
+                            amount : decimal(10,2)
+                            reason : varchar
+                            status : enum('unpaid', 'paid')
+                            created_at : timestamp
+                            updated_at : timestamp
+                        }
+                        
+
+
+                        %% LRS Relationships (Foreign Key Mappings)
+                        rentals "FK: user_id" --> "PK: id" users
+                        rentals "FK: car_id" --> "PK: id" cars
+                        penalties "FK: rental_id" --> "PK: id" rentals
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Dictionary & Explanation Section -->
+        <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold text-teal-600 mb-6 border-b border-slate-100 pb-4">3. Kamus Data & Penjelasan Entitas</h2>
+            <p class="text-sm text-slate-600 mb-8">
+                Penjelasan detail mengenai fungsi setiap entitas (tabel), atribut (kolom) di dalamnya, serta alasan logis mengapa data tersebut wajib ada dalam sistem arsitektur Drivora.
+            </p>
+
+            <div class="space-y-8">
+                
+                <!-- Table 1: USERS -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-800 px-6 py-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="bg-teal-500 text-xs px-2 py-1 rounded">Tabel</span>
+                            users
+                        </h3>
+                        <p class="text-slate-300 text-sm mt-1">Mengelola data otentikasi (login) dan profil seluruh pengguna sistem.</p>
+                        <p class="text-teal-300 text-xs mt-2 font-semibold">Mengapa harus ada? Tanpa tabel ini, sistem tidak akan tahu siapa yang meminjam mobil dan siapa yang bertugas sebagai Admin untuk menyetujui pesanan.</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-sm">
+                            <li><strong class="text-slate-800 inline-block w-32">id (PK)</strong> : Kunci utama unik (*BigInteger*) untuk mengidentifikasi setiap *user* secara spesifik.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">name & email</strong> : Informasi dasar untuk komunikasi dan *username* saat login.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">password</strong> : Kata sandi yang telah dienkripsi (Hash) untuk keamanan akun.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">phone</strong> : Nomor telepon, mutlak diperlukan agar Admin/Supir dapat menghubungi *customer* saat serah terima unit.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">nik & ktp_photo</strong> : Identitas kependudukan untuk validasi keamanan dan jaminan sewa (Diunggah oleh Admin).</li>
+                            <li><strong class="text-slate-800 inline-block w-32">address</strong> : Alamat tempat tinggal untuk validasi domisili.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">role</strong> : Menentukan otorisasi (*Enum: admin/customer*). Sangat krusial agar *customer* tidak bisa mengakses *dashboard* Java milik Admin.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Table 2: CARS -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-800 px-6 py-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="bg-teal-500 text-xs px-2 py-1 rounded">Tabel</span>
+                            cars
+                        </h3>
+                        <p class="text-slate-300 text-sm mt-1">Master Data (Katalog) aset mobil yang dimiliki oleh perusahaan Drivora.</p>
+                        <p class="text-teal-300 text-xs mt-2 font-semibold">Mengapa harus ada? Ini adalah "nyawa" atau inventaris bisnis rental. Tabel ini menjadi pusat pencarian (*Single Source of Truth*) ketersediaan barang.</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-sm">
+                            <li><strong class="text-slate-800 inline-block w-32">id (PK)</strong> : ID unik setiap unit mobil.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">brand & image</strong> : Menampilkan merek (cth: Toyota Avanza) dan URL foto untuk kepentingan *marketing* di *frontend*.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">size & trans...</strong> : Spesifikasi (Kapasitas Seat & Transmisi) agar *customer* bisa melakukan *filter* pencarian sesuai kebutuhan mereka.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">plate_number</strong> : Nomor polisi (Unik). Sangat penting untuk identifikasi fisik di dunia nyata saat tilang atau masalah asuransi.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">price_per_hour</strong>: Tarif sewa untuk mengalkulasi total tagihan secara otomatis (*auto-calculation*).</li>
+                            <li><strong class="text-slate-800 inline-block w-32">status</strong> : *Enum* (*available, rented, maintenance*). Wajib ada agar mobil yang sedang disewa tidak bisa di-*booking* ganda oleh *customer* lain.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Table 3: RENTALS -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-800 px-6 py-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="bg-teal-500 text-xs px-2 py-1 rounded">Tabel</span>
+                            rentals
+                        </h3>
+                        <p class="text-slate-300 text-sm mt-1">Tabel Transaksional untuk mencatat sejarah dan status peminjaman.</p>
+                        <p class="text-teal-300 text-xs mt-2 font-semibold">Mengapa harus ada? Menghubungkan "Siapa (User) meminjam Apa (Car)". Tanpa tabel ini, perusahaan tidak memiliki bukti histori pemesanan dan arus kas pendapatan.</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-sm">
+                            <li><strong class="text-slate-800 inline-block w-32">id (PK)</strong> : Nomor order pesanan.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">user_id (FK)</strong> : Menyambung ke tabel `users` untuk mengetahui data peminjam.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">car_id (FK)</strong> : Menyambung ke tabel `cars` untuk mengunci unit yang dipesan.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">start & end date</strong>: Durasi peminjaman. Krusial untuk menghitung total biaya dan mengetahui kapan mobil harus dikembalikan.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">total_price</strong> : Harga akhir yang disetujui (Durasi × `price_per_hour`).</li>
+                            <li><strong class="text-slate-800 inline-block w-32">status</strong> : Jejak pergerakan transaksi (*pending* -> *active* -> *completed*).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Table 4: PENALTIES -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
+                    <div class="bg-slate-800 px-6 py-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="bg-teal-500 text-xs px-2 py-1 rounded">Tabel</span>
+                            penalties
+                        </h3>
+                        <p class="text-slate-300 text-sm mt-1">Mengelola denda keterlambatan atau kerusakan terkait suatu pesanan.</p>
+                        <p class="text-teal-300 text-xs mt-2 font-semibold">Mengapa harus ada? Untuk penegakan aturan (*policy enforcement*). Pisahkan dari tabel `rentals` agar satu penyewaan bisa memiliki beberapa catatan denda jika pelanggaran terjadi berlapis.</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-sm">
+                            <li><strong class="text-slate-800 inline-block w-32">rental_id (FK)</strong> : Menghubungkan denda ke nomor pemesanan yang mana.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">amount</strong> : Besaran denda (Rupiah) yang harus dibayar.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">reason</strong> : Alasan denda (misal: "Telat pengembalian 3 Jam"). Penting untuk transparansi agar *customer* tidak komplain.</li>
+                            <li><strong class="text-slate-800 inline-block w-32">status</strong> : *unpaid* / *paid*. Agar sistem terus menagih peringatan di *dashboard* sampai denda dilunasi.</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </section>
+        
+        <!-- Footer Info -->
+        <footer class="text-center text-sm text-slate-400">
+            Dihasilkan secara otomatis untuk Proyek Drivora Rental Platform - Integrasi Laravel PHP & Java.<br>
+            Single Source of Truth Database Architecture.
+        </footer>
+    </div>
+
+</body>
+</html>
