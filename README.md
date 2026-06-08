@@ -84,4 +84,4 @@ Selesai! Sekarang Anda dapat masuk ke web sebagai pelanggan dan memesan mobil, l
 
 ---
 
-Selamat belajar dan mencoba! Jika Anda merasa kebingungan, ingatlah bahwa kode itu hanyalah serangkaian logika sebab-akibat sederhana. Semangat! 🚀
+Selamat belajar dan mencoba! Jika Anda merasa kebingungan, ingatlah bahwa kode itu hanyalah serangkaian logika sebab-akibat sederhana. Semangat! 
