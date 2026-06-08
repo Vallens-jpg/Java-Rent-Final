@@ -1,4 +1,4 @@
-# 🚗 Drivora - Sistem Manajemen Rental Mobil Terpadu
+# Drivora - Sistem Manajemen Rental Mobil Terpadu
 
 Halo! Selamat datang di proyek kode **Drivora**. Proyek ini adalah sistem penyewaan mobil yang sangat keren karena menggabungkan **dua aplikasi berbeda** yang saling terhubung satu sama lain melalui satu *database* (penyimpanan data) yang sama.
 
@@ -6,7 +6,7 @@ Dokumentasi ini ditulis dengan bahasa yang sangat sederhana agar siapa pun yang 
 
 ---
 
-## 🏗️ Struktur Utama Proyek
+## Struktur Utama Proyek
 
 Proyek ini terbagi menjadi dua bagian besar (berada di dalam 2 folder utama):
 
@@ -29,7 +29,7 @@ Ini adalah aplikasi komputer (Desktop) yang dibuat menggunakan **Bahasa Java**. 
 
 ---
 
-## ⚙️ Bagaimana Kedua Aplikasi Ini Terhubung?
+## Bagaimana Kedua Aplikasi Ini Terhubung?
 
 Kunci utamanya ada pada **Database MySQL**. Bayangkan *database* ini seperti sebuah buku besar catatan yang ditaruh di tengah meja.
 
@@ -42,7 +42,7 @@ Begitulah cara mereka berkomunikasi, padahal bahasanya berbeda (yang satu PHP, y
 
 ---
 
-## 🗄️ Susunan Database (Tempat Menyimpan Data)
+## Susunan Database (Tempat Menyimpan Data)
 
 Sistem ini memiliki beberapa "laci penyimpanan" di dalam *database*:
 
