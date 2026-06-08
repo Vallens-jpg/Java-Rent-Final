@@ -62,7 +62,7 @@ Jika Anda ingin menjalankan proyek ini di komputer Anda, ikuti langkah-langkah b
 Komputer Anda harus sudah terpasang **XAMPP** (untuk Database MySQL), **PHP**, **Composer**, **Node.js**, dan **Java (JDK)** beserta **NetBeans**.
 
 ### Langkah 1: Jalankan Database
-1. Buka XAMPP dan *Start* bagian **Apache** dan **MySQL**.
+1. Buka Laragon dan *Start*.
 2. Masuk ke folder web `rental-mobil` melalui terminal/CMD.
 3. Ketikkan perintah ini untuk membuat ulang seluruh database beserta isinya secara otomatis:
    `php artisan migrate:fresh --seed`
