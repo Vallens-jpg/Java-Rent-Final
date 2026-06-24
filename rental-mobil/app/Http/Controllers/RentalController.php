@@ -150,6 +150,12 @@ class RentalController extends Controller
         return view('rentals.show', compact('rental'));
     }
 
+    public function invoice(Rental $rental)
+    {
+        $rental->load(['car', 'user']);
+        return view('rentals.invoice', compact('rental'));
+    }
+
     // --- Admin Methods ---
     public function adminIndex()
     {

@@ -111,14 +111,22 @@
             @endif
         </div>
 
-        @if($rental->status == 'active')
+        @if($rental->status == 'active' || $rental->status == 'completed')
         <!-- Bottom Action Buttons -->
         <div class="p-8 lg:px-12 lg:py-8 bg-slate-50 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
+            @if($rental->status == 'active')
             <button id="extendOrPenaltyBtn" onclick="window.location.href = '/rentals/{{ $rental->id }}/extend'" class="flex-1 bg-white hover:bg-slate-100 text-gray-700 font-bold py-4 px-6 rounded-2xl border border-gray-200 shadow-sm transition-all duration-300 text-base flex items-center justify-center gap-2 group">
                 Ajukan Perpanjangan
             </button>
             <button onclick="alert('Silakan kembalikan mobil ke garasi Drivora dan konfirmasi kepada Admin yang bertugas.')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-4 px-6 rounded-2xl shadow-xl shadow-blue-600/20 transition-all duration-300 hover:-translate-y-1 text-base flex items-center justify-center gap-2 group">
                 Instruksi Pengembalian
+            </button>
+            @endif
+            <button onclick="window.location.href = '/rentals/{{ $rental->id }}/invoice'" class="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-extrabold py-4 px-6 rounded-2xl shadow-xl shadow-gray-800/20 transition-all duration-300 hover:-translate-y-1 text-base flex items-center justify-center gap-2 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Cetak Invoice
             </button>
         </div>
         @endif

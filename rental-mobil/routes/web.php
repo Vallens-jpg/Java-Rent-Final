@@ -46,6 +46,7 @@ Route::get('/rentals/{rental}/api-status', [RentalController::class, 'apiCheckSt
 Route::post('/rentals/{rental}/pay-penalty', [RentalController::class, 'payPenalty'])->name('rentals.pay_penalty');
 Route::post('/rentals/{rental}/dismiss-notification', [RentalController::class, 'dismissNotification'])->name('rentals.dismiss_notification');
 Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
+Route::get('/rentals/{rental}/invoice', [RentalController::class, 'invoice'])->name('rentals.invoice');
 
 // Admin Routes
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
