@@ -154,7 +154,11 @@ public class return1 extends javax.swing.JPanel {
         card.panel.setMaximumSize(new Dimension(320, 80));
         card.panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        javax.swing.JLabel iconLabel;
+        javax.swing.JLabel iconLabel = new javax.swing.JLabel();
+        iconLabel.setPreferredSize(new java.awt.Dimension(50, 35));
+        iconLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        
+        boolean imgOk = false;
         if (imagePath != null && !imagePath.trim().isEmpty()) {
             try {
                 String imgPath = "../rental-mobil/storage/app/public/" + imagePath;
@@ -162,14 +166,21 @@ public class return1 extends javax.swing.JPanel {
                 if (file.exists()) {
                     java.awt.Image img = javax.imageio.ImageIO.read(file);
                     java.awt.Image scaledImg = img.getScaledInstance(50, 35, java.awt.Image.SCALE_SMOOTH);
-                } else {
-                    System.out.println("No Image");
+                    iconLabel.setIcon(new javax.swing.ImageIcon(scaledImg));
+                    imgOk = true;
                 }
             } catch (Exception ex) {
+                ex.printStackTrace();
             }
-        } else {
-            System.out.println("No Image");
         }
+        
+        if (!imgOk) {
+            iconLabel.setText("No Pic");
+            iconLabel.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 10));
+            iconLabel.setForeground(java.awt.Color.GRAY);
+            iconLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 224, 230)));
+        }
+        card.panel.add(iconLabel, java.awt.BorderLayout.WEST);
 
         JPanel textPanel = new JPanel(new java.awt.GridLayout(2, 1));
         textPanel.setOpaque(false);
