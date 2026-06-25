@@ -43,8 +43,28 @@ public dashboard() {
     ContentPanel.add(panelHapusunit, "HalamanHapusUnit");
     ContentPanel.add(panelTambahunit, "HalamanTambahUnit");
     
-    cardLayout.show(ContentPanel, "HalamanMaster");
+    cardLayoutShow();
+}
 
+private void cardLayoutShow() {
+    cardLayout.show(ContentPanel, "HalamanMaster");
+    
+    // Posisikan helloadmin secara dinamis di tengah horizontal area konten
+    jPanel1.addComponentListener(new java.awt.event.ComponentAdapter() {
+        @Override
+        public void componentResized(java.awt.event.ComponentEvent e) {
+            int menuWidth = panelmenu.getWidth();
+            int totalWidth = jPanel1.getWidth();
+            int logoutWidth = buttonlogout.getWidth();
+            
+            // Hitung sisa ruang kosong antara menu kiri dan tombol logout kanan
+            int availableWidth = totalWidth - menuWidth - logoutWidth - 40;
+            // Posisikan di tengah ruang kosong tersebut
+            int targetX = menuWidth + (availableWidth - helloadmin.getWidth()) / 2;
+            
+            helloadmin.setLocation(targetX, helloadmin.getY());
+        }
+    });
 }
 
     
@@ -87,7 +107,8 @@ public dashboard() {
 
         helloadmin.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         helloadmin.setForeground(new java.awt.Color(51, 51, 51));
-        helloadmin.setText("HELLO, ARETA");
+        helloadmin.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        helloadmin.setText("HELLO, ADMIN");
 
         buttonlogout.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         buttonlogout.setText("Logout");
@@ -171,8 +192,8 @@ public dashboard() {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(0, 171, Short.MAX_VALUE)
-                                .addComponent(helloadmin)
+                                .addGap(0, 164, Short.MAX_VALUE)
+                                .addComponent(helloadmin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGap(156, 156, 156)
                                 .addComponent(buttonlogout))
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -192,7 +213,7 @@ public dashboard() {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(helloadmin)
+                    .addComponent(helloadmin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(buttonlogout))
                 .addGap(37, 37, 37)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -207,6 +228,8 @@ public dashboard() {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 459, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(12, 12, 12))
         );
+
+        helloadmin.getAccessibleContext().setAccessibleName("HELLO, ADMIN");
 
         getContentPane().add(jPanel1, "card2");
 
