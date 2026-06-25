@@ -8,18 +8,15 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Ambil pesanan yang sedang aktif atau pending milik user yang login
-        $rental = \App\Models\Rental::with('car')
+        // Ambil semua pesanan yang sedang aktif, pending, atau rejected milik user yang login
+        $rentals = \App\Models\Rental::with('car')
             ->where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'active', 'rejected'])
             ->latest()
-            ->first();
-            
-        if ($rental && $rental->status == 'completed') {
-            $rental = null;
-        }
+            ->get();
 
         // Customer dashboard
-        return view('dashboard.customer', compact('rental'));
+        return view('dashboard.customer', compact('rentals'));
     }
 
     public function adminIndex()

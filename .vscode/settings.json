@@ -1,0 +1,5 @@
+{
+  "java.project.referencedLibraries": [
+    "rental-admin-java/lib/*.jar"
+  ]
+}
