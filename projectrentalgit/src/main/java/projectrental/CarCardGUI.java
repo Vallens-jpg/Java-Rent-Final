@@ -31,15 +31,33 @@ public class CarCardGUI extends javax.swing.JPanel {
         try {
             String fullPath = "../rental-mobil/storage/app/public/" + imagePath;
             java.io.File file = new java.io.File(fullPath);
+            System.out.println("[DEBUG] Image path: " + file.getAbsolutePath() + " | exists: " + file.exists());
             if (file.exists()) {
-                java.awt.Image img = javax.imageio.ImageIO.read(file);
-                java.awt.Image scaledImg = img.getScaledInstance(160, 100, java.awt.Image.SCALE_SMOOTH);
-                Gambar.setIcon(new javax.swing.ImageIcon(scaledImg));
-                Gambar.setText("");
-                Gambar.setBorder(null);
-                imageLoaded = true;
+                java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(file);
+                if (img != null) {
+                    java.awt.Image scaledImg = img.getScaledInstance(160, 100, java.awt.Image.SCALE_SMOOTH);
+                    Gambar.setIcon(new javax.swing.ImageIcon(scaledImg));
+                    Gambar.setText("");
+                    Gambar.setBorder(null);
+                    imageLoaded = true;
+                } else {
+                    // ImageIO returned null - try loading via ImageIcon directly as fallback
+                    javax.swing.ImageIcon icon = new javax.swing.ImageIcon(file.getAbsolutePath());
+                    if (icon.getImageLoadStatus() == java.awt.MediaTracker.COMPLETE || icon.getIconWidth() > 0) {
+                        java.awt.Image scaledImg = icon.getImage().getScaledInstance(160, 100, java.awt.Image.SCALE_SMOOTH);
+                        Gambar.setIcon(new javax.swing.ImageIcon(scaledImg));
+                        Gambar.setText("");
+                        Gambar.setBorder(null);
+                        imageLoaded = true;
+                    } else {
+                        System.out.println("[WARN] ImageIO.read returned null and ImageIcon fallback also failed for: " + fullPath);
+                    }
+                }
+            } else {
+                System.out.println("[WARN] File not found: " + file.getAbsolutePath());
             }
         } catch (Exception ex) {
+            System.out.println("[ERROR] Failed to load image: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
