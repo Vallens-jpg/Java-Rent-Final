@@ -52,8 +52,8 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="1" attributes="0">
                               <Group type="102" attributes="0">
-                                  <EmptySpace min="0" pref="171" max="32767" attributes="0"/>
-                                  <Component id="helloadmin" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="0" pref="164" max="32767" attributes="0"/>
+                                  <Component id="helloadmin" max="32767" attributes="0"/>
                                   <EmptySpace min="-2" pref="156" max="-2" attributes="0"/>
                                   <Component id="buttonlogout" min="-2" max="-2" attributes="0"/>
                               </Group>
@@ -80,7 +80,7 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="helloadmin" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="helloadmin" alignment="3" max="32767" attributes="0"/>
                       <Component id="buttonlogout" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
@@ -111,8 +111,12 @@
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="33" green="33" red="33" type="rgb"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="HELLO, ARETA"/>
+            <Property name="horizontalAlignment" type="int" value="0"/>
+            <Property name="text" type="java.lang.String" value="HELLO, ADMIN"/>
           </Properties>
+          <AccessibilityProperties>
+            <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="HELLO, ADMIN"/>
+          </AccessibilityProperties>
         </Component>
         <Component class="javax.swing.JButton" name="buttonlogout">
           <Properties>

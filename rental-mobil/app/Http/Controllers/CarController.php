@@ -23,7 +23,7 @@ class CarController extends Controller
         }
 
         // Tampilkan yang available dulu, baru yang sedang disewa
-        $query->orderByRaw("FIELD(status, 'available', 'rented')");
+        $query->orderByRaw("CASE WHEN status = 'available' THEN 1 WHEN status = 'rented' THEN 2 ELSE 3 END");
         $cars = $query->get();
 
         return view('cars.index', compact('cars'));

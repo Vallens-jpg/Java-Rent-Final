@@ -1,5 +1,9 @@
 {
   "java.project.referencedLibraries": [
     "rental-admin-java/lib/*.jar"
+  ],
+  "java.project.sourcePaths": [
+    "rental-admin-java/src",
+    "projectrentalgit_backup/src/main/java/projectrental"
   ]
 }

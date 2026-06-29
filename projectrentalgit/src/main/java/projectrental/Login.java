@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import org.mindrot.jbcrypt.BCrypt;
+import projectrental.helper.ValidationHelper;
 /**
  *
  * @author user dell 7420
@@ -154,7 +155,7 @@ public class Login extends javax.swing.JFrame {
        String email = inputemail.getText().trim();
     String password = new String(inputpassword.getPassword());
 
-    if (email.isEmpty() || password.isEmpty()) {
+    if (ValidationHelper.isAnyEmpty(email, password)) {
         JOptionPane.showMessageDialog(this, 
             "Email dan Password tidak boleh kosong!", 
             "Peringatan", JOptionPane.WARNING_MESSAGE);

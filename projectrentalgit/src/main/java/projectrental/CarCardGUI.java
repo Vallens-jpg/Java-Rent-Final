@@ -15,7 +15,7 @@ public class CarCardGUI extends javax.swing.JPanel {
         detail.setText(transmission + " | " + plate);
 
         java.text.NumberFormat nf = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("id", "ID"));
-        harga.setText(nf.format(price).replace(",00", "") + " / Hari");
+        harga.setText(nf.format(price).replace(",00", "") + " / Jam");
 
         status.setText("  " + statusMobil.toUpperCase() + "  ");
         if (statusMobil.equalsIgnoreCase("Available")) {

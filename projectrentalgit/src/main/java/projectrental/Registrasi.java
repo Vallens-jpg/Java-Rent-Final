@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import org.mindrot.jbcrypt.BCrypt;
+import projectrental.helper.ValidationHelper;
 
 /**
  *
@@ -173,14 +174,14 @@ public class Registrasi extends javax.swing.JFrame {
     String password = new String(stringpassword.getPassword());
     String nomorTelepon = stringnomor.getText().trim();
 
-    if (email.isEmpty() || password.isEmpty() || nomorTelepon.isEmpty()) {
+    if (ValidationHelper.isAnyEmpty(email, password, nomorTelepon)) {
         JOptionPane.showMessageDialog(this, 
             "Semua kolom (Email, Password, dan No. Telepon) wajib diisi!", 
             "Peringatan", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
-    if (!email.contains("@") || !email.contains(".")) {
+    if (!ValidationHelper.isValidEmail(email)) {
         JOptionPane.showMessageDialog(this, 
             "Format email tidak valid!", 
             "Peringatan", JOptionPane.WARNING_MESSAGE);
