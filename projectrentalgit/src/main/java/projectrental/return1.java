@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.Color;
 import java.awt.Cursor;
+import projectrental.helper.RentalHelper;
 
 /**
  *
@@ -31,7 +32,7 @@ public class return1 extends javax.swing.JPanel {
     private int selectedRentalId = -1;
     private int selectedCarId = -1;
     private double originalPrice = 0;
-    private double penaltyAmount = 10000;
+    private double penaltyAmount = 2400000;
     private boolean isOverdue = false;
 
     private Timer countdownTimer;
@@ -122,14 +123,7 @@ public class return1 extends javax.swing.JPanel {
     }
 
     private String formatTimeDiff(long totalSecs) {
-        boolean isNegative = totalSecs < 0;
-        long absSecs = Math.abs(totalSecs);
-        long hours = absSecs / 3600;
-        long minutes = (absSecs % 3600) / 60;
-        long seconds = absSecs % 60;
-        
-        String timeStr = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        return isNegative ? "-" + timeStr : timeStr;
+        return RentalHelper.formatTimeDiff(totalSecs);
     }
 
     private RentalCardInfo createReturnItem(int rentalId, int userId, int carId, String brand, String trans, String imagePath, double price, long timeDiffSec) {
@@ -546,10 +540,7 @@ public class return1 extends javax.swing.JPanel {
 
     private void konfirmasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_konfirmasiActionPerformed
     if (selectedRentalId == -1) return;
-        double finalPrice = originalPrice;
-        if (isOverdue) {
-            finalPrice += penaltyAmount;
-        }
+        double finalPrice = RentalHelper.calculateTotalPrice(originalPrice, isOverdue, penaltyAmount);
         NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
         int confirmResult = JOptionPane.showConfirmDialog(this, 
             "Selesaikan pengembalian?\nTotal Tagihan Akhir: " + nf.format(finalPrice) + 
@@ -575,6 +566,23 @@ public class return1 extends javax.swing.JPanel {
                     stmt.executeUpdate();
                 }
                 if (isOverdue) {
+                    // Hitung durasi keterlambatan dalam jam
+                    int delayHours = 1;
+                    if (selectedClassCard != null && selectedClassCard.timeDiffSec < 0) {
+                        delayHours = (int) (Math.abs(selectedClassCard.timeDiffSec) / 3600);
+                        if (delayHours == 0) delayHours = 1; // Minimal 1 jam
+                    }
+
+                    // Insert ke tabel penalties
+                    String penaltySql = "INSERT INTO penalties (rental_id, delay_duration, penalty_amount, status, created_at, updated_at) VALUES (?, ?, ?, 'paid', NOW(), NOW())";
+                    try (PreparedStatement stmt = conn.prepareStatement(penaltySql)) {
+                        stmt.setInt(1, selectedRentalId);
+                        stmt.setInt(2, delayHours);
+                        stmt.setDouble(3, penaltyAmount);
+                        stmt.executeUpdate();
+                    }
+
+                    // Insert ke tabel transactions
                     String transSql = "INSERT INTO transactions (rental_id, car_id, transaction_type, amount, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())";
                     try (PreparedStatement stmt = conn.prepareStatement(transSql)) {
                         stmt.setInt(1, selectedRentalId);
