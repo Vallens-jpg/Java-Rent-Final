@@ -109,7 +109,7 @@ public class income extends javax.swing.JPanel {
     public void loadIncomeData() {
         DefaultTableModel model = new DefaultTableModel(
             new String [] {
-                "ID Order", "ID Mobil", "Mobil", "Transmisi", "Tanggal", "Waktu", "Periode", "Nominal", "PIC"
+                "ID Order", "ID Mobil", "Mobil", "Transmisi", "Tanggal", "Waktu", "Tipe Transaksi", "Nominal", "PIC"
             }, 0
         ) {
             @Override
@@ -120,16 +120,15 @@ public class income extends javax.swing.JPanel {
         
         tabelincome.setModel(model);
         
-        String sql = "SELECT r.id as order_id, r.car_id, c.brand, c.transmission, " +
-                     "DATE_FORMAT(r.created_at, '%Y-%m-%d') as tanggal, " +
-                     "DATE_FORMAT(r.created_at, '%H:%i:%s') as waktu, " +
-                     "CONCAT(TIMESTAMPDIFF(HOUR, r.start_time, r.end_time), ' Jam') as periode, " +
-                     "r.total_price, u.name as pic " +
-                     "FROM rentals r " +
-                     "JOIN cars c ON r.car_id = c.id " +
+        String sql = "SELECT t.rental_id as order_id, t.car_id, c.brand, c.transmission, " +
+                     "DATE_FORMAT(t.created_at, '%Y-%m-%d') as tanggal, " +
+                     "DATE_FORMAT(t.created_at, '%H:%i:%s') as waktu, " +
+                     "t.transaction_type, t.amount as total_price, u.name as pic " +
+                     "FROM transactions t " +
+                     "JOIN rentals r ON t.rental_id = r.id " +
+                     "JOIN cars c ON t.car_id = c.id " +
                      "LEFT JOIN users u ON r.admin_id = u.id " +
-                     "WHERE r.status IN ('active', 'completed') " +
-                     "ORDER BY r.updated_at DESC";
+                     "ORDER BY t.created_at DESC";
                      
         Connection conn = db.testdatabase.getKoneksi();
         if (conn == null) {
@@ -153,7 +152,7 @@ public class income extends javax.swing.JPanel {
                 String transmission = rs.getString("transmission");
                 String tanggal = rs.getString("tanggal");
                 String waktu = rs.getString("waktu");
-                String periode = rs.getString("periode");
+                String type = rs.getString("transaction_type");
                 double nominal = rs.getDouble("total_price");
                 String pic = rs.getString("pic");
                 if (pic == null) pic = "-";
@@ -165,7 +164,7 @@ public class income extends javax.swing.JPanel {
                     transmission,
                     tanggal,
                     waktu,
-                    periode,
+                    type,
                     nf.format(nominal),
                     pic
                 });
