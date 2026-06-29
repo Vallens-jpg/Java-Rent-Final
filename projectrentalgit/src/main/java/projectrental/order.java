@@ -31,6 +31,9 @@ public class order extends javax.swing.JPanel {
     private int selectedCarId = -1;
     private double originalPrice = 0;
     private String selectedKtpPath = "";
+    private String selectedType = "Sewa Baru";
+    private int selectedExtensionDays = 0;
+    private double selectedPricePerHour = 0;
 
     public void setAdminId(int adminId) {
         this.currentAdminId = adminId;
@@ -45,10 +48,11 @@ public class order extends javax.swing.JPanel {
         listPanel.removeAll();
         boolean hasOrders = false;
         
-        String sql = "SELECT r.id, r.user_id, c.id as car_id, c.brand, c.transmission, r.total_price, " +
-                     "TIMESTAMPDIFF(HOUR, r.start_time, r.end_time) as duration " +
+        String sql = "SELECT r.id, r.user_id, c.id as car_id, c.brand, c.transmission, c.price_per_hour, r.total_price, " +
+                     "TIMESTAMPDIFF(HOUR, r.start_time, r.end_time) as duration, " +
+                     "r.status, r.extension_status, r.extension_days " +
                      "FROM rentals r JOIN cars c ON r.car_id = c.id " +
-                     "WHERE r.status = 'pending'";
+                     "WHERE r.status = 'pending' OR r.extension_status = 'pending_verification'";
                      
         try (Connection conn = db.testdatabase.getKoneksi();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -63,8 +67,19 @@ public class order extends javax.swing.JPanel {
                 String trans = rs.getString("transmission");
                 double price = rs.getDouble("total_price");
                 int duration = rs.getInt("duration");
+                double pricePerHour = rs.getDouble("price_per_hour");
+                
+                String status = rs.getString("status");
+                String extensionStatus = rs.getString("extension_status");
+                int extensionDays = rs.getInt("extension_days");
+                
+                String type = "Sewa Baru";
+                if ("pending_verification".equals(extensionStatus)) {
+                    type = "Perpanjangan";
+                    duration = extensionDays;
+                }
 
-                JPanel item = createOrderItem(rentalId, userId, carId, brand, trans, price, duration);
+                JPanel item = createOrderItem(rentalId, userId, carId, brand, trans, price, duration, type, extensionDays, pricePerHour);
                 listPanel.add(item);
                 listPanel.add(Box.createRigidArea(new Dimension(0, 10)));
             }
@@ -88,28 +103,44 @@ public class order extends javax.swing.JPanel {
         listPanel.repaint();
     }
 
-    private JPanel createOrderItem(int rentalId, int userId, int carId, String brand, String trans, double price, int duration) {
+    private JPanel createOrderItem(int rentalId, int userId, int carId, String brand, String trans, double price, int duration, String type, int extensionDays, double pricePerHour) {
         JPanel panel = new JPanel(new java.awt.BorderLayout(10, 10));
-
-        
         panel.setMaximumSize(new Dimension(320, 80));
         panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        javax.swing.JLabel iconLabel = new javax.swing.JLabel("🚗", javax.swing.SwingConstants.CENTER);
+        if ("Perpanjangan".equals(type)) {
+            panel.setBackground(new java.awt.Color(230, 242, 255)); // Biru muda
+        } else {
+            panel.setBackground(java.awt.Color.WHITE);
+        }
+
+        panel.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(220, 224, 230), 1, true),
+            javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+
+        javax.swing.JLabel iconLabel = new javax.swing.JLabel("Perpanjangan".equals(type) ? "⏳" : "🚗", javax.swing.SwingConstants.CENTER);
         iconLabel.setFont(new java.awt.Font("Segoe UI Emoji", java.awt.Font.PLAIN, 32));
 
         JPanel textPanel = new JPanel(new java.awt.GridLayout(2, 1));
         textPanel.setOpaque(false);
-        textPanel.add(new javax.swing.JLabel(brand));
+        textPanel.add(new javax.swing.JLabel(brand + ("Perpanjangan".equals(type) ? " (Extend)" : "")));
         textPanel.add(new javax.swing.JLabel(trans));
 
         JPanel rightPanel = new JPanel(new java.awt.GridLayout(2, 1));
         rightPanel.setOpaque(false);
-        rightPanel.add(new javax.swing.JLabel(duration + " Jam", javax.swing.SwingConstants.RIGHT));
+        
+        String durationStr = "Perpanjangan".equals(type) ? duration + " Hari" : duration + " Jam";
+        rightPanel.add(new javax.swing.JLabel(durationStr, javax.swing.SwingConstants.RIGHT));
+        
+        double displayPrice = price;
+        if ("Perpanjangan".equals(type)) {
+            displayPrice = pricePerHour * 24 * extensionDays;
+        }
         
         NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
-        javax.swing.JLabel priceLabel = new javax.swing.JLabel(nf.format(price), javax.swing.SwingConstants.RIGHT);
-        priceLabel.setForeground(new java.awt.Color(22, 163, 74));
+        javax.swing.JLabel priceLabel = new javax.swing.JLabel(nf.format(displayPrice), javax.swing.SwingConstants.RIGHT);
+        priceLabel.setForeground("Perpanjangan".equals(type) ? new java.awt.Color(29, 78, 216) : new java.awt.Color(22, 163, 74));
         rightPanel.add(priceLabel);
 
         panel.add(iconLabel, java.awt.BorderLayout.WEST);
@@ -118,21 +149,38 @@ public class order extends javax.swing.JPanel {
 
         panel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                showOrderDetails(rentalId, userId, carId, brand, trans, price, duration);
+                showOrderDetails(rentalId, userId, carId, brand, trans, price, duration, type, extensionDays, pricePerHour);
             }
         });
 
         return panel;
     }
 
-    private void showOrderDetails(int rentalId, int userId, int carId, String brand, String trans, double price, int duration) {
+    private void showOrderDetails(int rentalId, int userId, int carId, String brand, String trans, double price, int duration, String type, int extensionDays, double pricePerHour) {
         selectedRentalId = rentalId;
         selectedUserId = userId;
         selectedCarId = carId;
         originalPrice = price;
+        selectedType = type;
+        selectedExtensionDays = extensionDays;
+        selectedPricePerHour = pricePerHour;
         selectedKtpPath = "";
         
-        ktpPathLabel.setText("Belum ada file dipilih");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+        
+        if ("Perpanjangan".equals(type)) {
+            jLabel6.setText(brand + " (Extend " + extensionDays + " Hari)");
+            double extendCost = pricePerHour * 24 * extensionDays;
+            jLabel7.setText(nf.format(extendCost));
+            uploadKTP.setEnabled(false);
+            ktpPathLabel.setText("[Perpanjangan - KTP Terverifikasi]");
+            selectedKtpPath = "SKIP_FOR_EXTEND"; // Bypass KTP validation
+        } else {
+            jLabel6.setText(brand + " (" + trans + ")");
+            jLabel7.setText(nf.format(price));
+            uploadKTP.setEnabled(true);
+            ktpPathLabel.setText("file belum diupload");
+        }
         
         String userName = "", userPhone = "", userAddress = "", userNik = "";
         try (Connection conn = db.testdatabase.getKoneksi()) {
@@ -398,46 +446,83 @@ public class order extends javax.swing.JPanel {
         
         String address = alamat.getText().trim();
         String nik = noKTP.getText().trim();
-        if (address.isEmpty() || nik.isEmpty() || selectedKtpPath.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mohon lengkapi Alamat, NIK, dan unggah Foto KTP!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            return;
+        
+        if (!"Perpanjangan".equals(selectedType)) {
+            if (address.isEmpty() || nik.isEmpty() || selectedKtpPath.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Mohon lengkapi Alamat, NIK, dan unggah Foto KTP!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
         }
+        
         try (Connection conn = db.testdatabase.getKoneksi()) {
             conn.setAutoCommit(false);
             try {
+                if ("Perpanjangan".equals(selectedType)) {
+                    double extendCost = selectedPricePerHour * 24 * selectedExtensionDays;
+                    
+                    // 1. Update rentals table (perpanjang end_time, tambah total_price, set status active, set extension_status paid)
+                    String extendSql = "UPDATE rentals SET end_time = DATE_ADD(end_time, INTERVAL ? DAY), " +
+                                       "total_price = total_price + ?, " +
+                                       "extension_status = 'paid', " +
+                                       "status = 'active', " +
+                                       "admin_id = ? " +
+                                       "WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(extendSql)) {
+                        stmt.setInt(1, selectedExtensionDays);
+                        stmt.setDouble(2, extendCost);
+                        stmt.setInt(3, currentAdminId);
+                        stmt.setInt(4, selectedRentalId);
+                        stmt.executeUpdate();
+                    }
+                    
+                    // 2. Insert into transactions table for extension record
+                    String transSql = "INSERT INTO transactions (rental_id, car_id, transaction_type, amount, created_at, updated_at) " +
+                                       "VALUES (?, ?, 'Perpanjangan', ?, NOW(), NOW())";
+                    try (PreparedStatement stmt = conn.prepareStatement(transSql)) {
+                        stmt.setInt(1, selectedRentalId);
+                        stmt.setInt(2, selectedCarId);
+                        stmt.setDouble(3, extendCost);
+                        stmt.executeUpdate();
+                    }
+                    
+                    JOptionPane.showMessageDialog(this, "Perpanjangan Sewa Berhasil Dikonfirmasi!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    // Sewa Baru
+                    String userSql = "UPDATE users SET address = ?, nik = ?, ktp_photo = ? WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(userSql)) {
+                        stmt.setString(1, address);
+                        stmt.setString(2, nik);
+                        stmt.setString(3, selectedKtpPath);
+                        stmt.setInt(4, selectedUserId);
+                        stmt.executeUpdate();
+                    }
+                    
+                    String rentalSql = "UPDATE rentals SET status = 'active', admin_id = ? WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(rentalSql)) {
+                        stmt.setInt(1, currentAdminId);
+                        stmt.setInt(2, selectedRentalId);
+                        stmt.executeUpdate();
+                    }
+                    
+                    String transSql = "INSERT INTO transactions (rental_id, car_id, transaction_type, amount, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())";
+                    try (PreparedStatement stmt = conn.prepareStatement(transSql)) {
+                        stmt.setInt(1, selectedRentalId);
+                        stmt.setInt(2, selectedCarId);
+                        stmt.setString(3, "Sewa Baru");
+                        stmt.setDouble(4, originalPrice);
+                        stmt.executeUpdate();
+                    }
 
-                String userSql = "UPDATE users SET address = ?, nik = ?, ktp_photo = ? WHERE id = ?";
-                try (PreparedStatement stmt = conn.prepareStatement(userSql)) {
-                    stmt.setString(1, address);
-                    stmt.setString(2, nik);
-                    stmt.setString(3, selectedKtpPath);
-                    stmt.setInt(4, selectedUserId);
-                    stmt.executeUpdate();
+                    String carSql = "UPDATE cars SET status = 'rented' WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(carSql)) {
+                        stmt.setInt(1, selectedCarId);
+                        stmt.executeUpdate();
+                    }
+                    
+                    JOptionPane.showMessageDialog(this, "Pesanan Berhasil Dikonfirmasi!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
                 }
                 
-                String rentalSql = "UPDATE rentals SET status = 'active', admin_id = ? WHERE id = ?";
-                try (PreparedStatement stmt = conn.prepareStatement(rentalSql)) {
-                    stmt.setInt(1, currentAdminId);
-                    stmt.setInt(2, selectedRentalId);
-                    stmt.executeUpdate();
-                }
-                String transSql = "INSERT INTO transactions (rental_id, car_id, transaction_type, amount, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())";
-                try (PreparedStatement stmt = conn.prepareStatement(transSql)) {
-                    stmt.setInt(1, selectedRentalId);
-                    stmt.setInt(2, selectedCarId);
-                    stmt.setString(3, "Sewa Baru");
-                    stmt.setDouble(4, originalPrice);
-                    stmt.executeUpdate();
-                }
-
-                String carSql = "UPDATE cars SET status = 'rented' WHERE id = ?";
-                try (PreparedStatement stmt = conn.prepareStatement(carSql)) {
-                    stmt.setInt(1, selectedCarId);
-                    stmt.executeUpdate();
-                }
                 conn.commit();
-                
-                JOptionPane.showMessageDialog(this, "Pesanan Berhasil Dikonfirmasi!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
                 clearForm();
                 loadPendingOrders();
                 
@@ -448,7 +533,7 @@ public class order extends javax.swing.JPanel {
                 conn.setAutoCommit(true);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Gagal mengonfirmasi pesanan:\n" + ex.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Gagal mengonfirmasi:\n" + ex.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
     }//GEN-LAST:event_konfirmasiActionPerformed
@@ -470,12 +555,21 @@ public class order extends javax.swing.JPanel {
             return;
         }
         try (Connection conn = db.testdatabase.getKoneksi()) {
-            String sql = "UPDATE rentals SET status = 'rejected', rejection_reason = ?, admin_id = ? WHERE id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, reason);
-                stmt.setInt(2, currentAdminId);
-                stmt.setInt(3, selectedRentalId);
-                stmt.executeUpdate();
+            if ("Perpanjangan".equals(selectedType)) {
+                String sql = "UPDATE rentals SET extension_status = 'rejected', admin_id = ? WHERE id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setInt(1, currentAdminId);
+                    stmt.setInt(2, selectedRentalId);
+                    stmt.executeUpdate();
+                }
+            } else {
+                String sql = "UPDATE rentals SET status = 'rejected', rejection_reason = ?, admin_id = ? WHERE id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, reason);
+                    stmt.setInt(2, currentAdminId);
+                    stmt.setInt(3, selectedRentalId);
+                    stmt.executeUpdate();
+                }
             }
             
             JOptionPane.showMessageDialog(this, "Pesanan berhasil ditolak.", "Informasi", JOptionPane.INFORMATION_MESSAGE);
